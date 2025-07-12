@@ -1,0 +1,128 @@
+2025-07-05 02:36:00,811 INFO: 
+                ____                _       _____  ____
+               / __ ) ____ _ _____ (_)_____/ ___/ / __ \
+              / __  |/ __ `// ___// // ___/\__ \ / /_/ /
+             / /_/ // /_/ /(__  )/ // /__ ___/ // _, _/
+            /_____/ \__,_//____//_/ \___//____//_/ |_|
+     ______                   __   __                 __      __
+    / ____/____   ____   ____/ /  / /   __  __ _____ / /__   / /
+   / / __ / __ \ / __ \ / __  /  / /   / / / // ___// //_/  / /
+  / /_/ // /_/ // /_/ // /_/ /  / /___/ /_/ // /__ / /<    /_/
+  \____/ \____/ \____/ \____/  /_____/\____/ \___//_/|_|  (_)
+    
+Version Information: 
+	BasicSR: 1.2.0+4e72315
+	PyTorch: 2.7.1+cu118
+	TorchVision: 0.22.1+cu118
+2025-07-05 02:36:00,814 INFO: 
+  name: GoPro-HINet
+  model_type: ImageRestorationModel
+  scale: 1
+  num_gpu: 1
+  manual_seed: 10
+  datasets:[
+    train:[
+      name: gopro-train
+      type: PairedImageDataset
+      dataroot_gt: HINet\datasets\results\GoPro_results\train_results
+      dataroot_lq: HINet\datasets\train\GoPro\input_crops
+      filename_tmpl: {}
+      io_backend:[
+        type: disk
+      ]
+      gt_size: 512
+      use_flip: True
+      use_rot: True
+      use_shuffle: True
+      num_worker_per_gpu: 8
+      batch_size_per_gpu: 1
+      dataset_enlarge_ratio: 1
+      prefetch_mode: None
+      phase: train
+      scale: 1
+    ]
+    val:[
+      name: gopro-test
+      type: PairedImageDataset
+      dataroot_gt: HINet\datasets\results\GoPro_results\val_results
+      dataroot_lq: HINet\datasets\test\GoPro\input_resized
+      io_backend:[
+        type: disk
+      ]
+      phase: val
+      scale: 1
+    ]
+  ]
+  network_g:[
+    type: HINet
+    wf: 64
+    hin_position_left: 3
+    hin_position_right: 4
+  ]
+  path:[
+    pretrain_network_g: None
+    strict_load_g: True
+    resume_state: None
+    root: d:\intel\hinet
+    experiments_root: d:\intel\hinet\experiments\GoPro-HINet
+    models: d:\intel\hinet\experiments\GoPro-HINet\models
+    training_states: d:\intel\hinet\experiments\GoPro-HINet\training_states
+    log: d:\intel\hinet\experiments\GoPro-HINet
+    visualization: d:\intel\hinet\experiments\GoPro-HINet\visualization
+  ]
+  train:[
+    optim_g:[
+      type: Adam
+      lr: 0.0002
+      weight_decay: 0
+      betas: [0.9, 0.99]
+    ]
+    scheduler:[
+      type: TrueCosineAnnealingLR
+      T_max: 400000
+      eta_min: 1e-07
+    ]
+    total_iter: 400000
+    warmup_iter: -1
+    pixel_opt:[
+      type: DistillationLoss
+      loss_weight: 1.0
+      reduction: mean
+      loss_student: L1Loss
+      loss_distill: L1Loss
+      alpha: 0.5
+      beta: 0.5
+    ]
+  ]
+  val:[
+    val_freq: 50000.0
+    save_img: False
+    grids: True
+    crop_size: 256
+    max_minibatch: 8
+    metrics:[
+      psnr:[
+        type: calculate_psnr
+        crop_border: 0
+        test_y_channel: False
+      ]
+    ]
+  ]
+  logger:[
+    print_freq: 200
+    save_checkpoint_freq: 20000.0
+    use_tb_logger: True
+    wandb:[
+      project: None
+      resume_id: None
+    ]
+  ]
+  dist_params:[
+    backend: nccl
+    port: 29500
+  ]
+  is_train: True
+  dist: False
+  rank: 0
+  world_size: 1
+

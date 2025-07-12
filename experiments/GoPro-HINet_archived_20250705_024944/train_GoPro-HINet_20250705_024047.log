@@ -1,0 +1,340 @@
+2025-07-05 02:40:47,536 INFO: 
+                ____                _       _____  ____
+               / __ ) ____ _ _____ (_)_____/ ___/ / __ \
+              / __  |/ __ `// ___// // ___/\__ \ / /_/ /
+             / /_/ // /_/ /(__  )/ // /__ ___/ // _, _/
+            /_____/ \__,_//____//_/ \___//____//_/ |_|
+     ______                   __   __                 __      __
+    / ____/____   ____   ____/ /  / /   __  __ _____ / /__   / /
+   / / __ / __ \ / __ \ / __  /  / /   / / / // ___// //_/  / /
+  / /_/ // /_/ // /_/ // /_/ /  / /___/ /_/ // /__ / /<    /_/
+  \____/ \____/ \____/ \____/  /_____/\____/ \___//_/|_|  (_)
+    
+Version Information: 
+	BasicSR: 1.2.0+4e72315
+	PyTorch: 2.7.1+cu118
+	TorchVision: 0.22.1+cu118
+2025-07-05 02:40:47,537 INFO: 
+  name: GoPro-HINet
+  model_type: ImageRestorationModel
+  scale: 1
+  num_gpu: 1
+  manual_seed: 10
+  datasets:[
+    train:[
+      name: gopro-train
+      type: PairedImageDataset
+      dataroot_gt: datasets\results\GoPro_results\train_results
+      dataroot_lq: datasets\train\GoPro\input_crops
+      filename_tmpl: {}
+      io_backend:[
+        type: disk
+      ]
+      gt_size: 512
+      use_flip: True
+      use_rot: True
+      use_shuffle: True
+      num_worker_per_gpu: 8
+      batch_size_per_gpu: 1
+      dataset_enlarge_ratio: 1
+      prefetch_mode: None
+      phase: train
+      scale: 1
+    ]
+    val:[
+      name: gopro-test
+      type: PairedImageDataset
+      dataroot_gt: datasets\results\GoPro_results\val_results
+      dataroot_lq: datasets\test\GoPro\input_resized
+      io_backend:[
+        type: disk
+      ]
+      phase: val
+      scale: 1
+    ]
+  ]
+  network_g:[
+    type: HINet
+    wf: 64
+    hin_position_left: 3
+    hin_position_right: 4
+  ]
+  path:[
+    pretrain_network_g: None
+    strict_load_g: True
+    resume_state: None
+    root: d:\intel\hinet
+    experiments_root: d:\intel\hinet\experiments\GoPro-HINet
+    models: d:\intel\hinet\experiments\GoPro-HINet\models
+    training_states: d:\intel\hinet\experiments\GoPro-HINet\training_states
+    log: d:\intel\hinet\experiments\GoPro-HINet
+    visualization: d:\intel\hinet\experiments\GoPro-HINet\visualization
+  ]
+  train:[
+    optim_g:[
+      type: Adam
+      lr: 0.0002
+      weight_decay: 0
+      betas: [0.9, 0.99]
+    ]
+    scheduler:[
+      type: TrueCosineAnnealingLR
+      T_max: 400000
+      eta_min: 1e-07
+    ]
+    total_iter: 400000
+    warmup_iter: -1
+    pixel_opt:[
+      type: DistillationLoss
+      loss_weight: 1.0
+      reduction: mean
+      loss_student: L1Loss
+      loss_distill: L1Loss
+      alpha: 0.5
+      beta: 0.5
+    ]
+  ]
+  val:[
+    val_freq: 50000.0
+    save_img: False
+    grids: True
+    crop_size: 256
+    max_minibatch: 8
+    metrics:[
+      psnr:[
+        type: calculate_psnr
+        crop_border: 0
+        test_y_channel: False
+      ]
+    ]
+  ]
+  logger:[
+    print_freq: 200
+    save_checkpoint_freq: 20000.0
+    use_tb_logger: True
+    wandb:[
+      project: None
+      resume_id: None
+    ]
+  ]
+  dist_params:[
+    backend: nccl
+    port: 29500
+  ]
+  is_train: True
+  dist: False
+  rank: 0
+  world_size: 1
+
+2025-07-05 02:40:59,013 INFO: Dataset PairedImageDataset - gopro-train is created.
+2025-07-05 02:40:59,013 INFO: Training statistics:
+	Number of train images: 16824
+	Dataset enlarge ratio: 1
+	Batch size per gpu: 1
+	World size (gpu number): 1
+	Require iter number per epoch: 16824
+	Total epochs: 24; iters: 400000.
+2025-07-05 02:40:59,096 INFO: Dataset PairedImageDataset - gopro-test is created.
+2025-07-05 02:40:59,097 INFO: Number of val images/folders in gopro-test: 1111
+2025-07-05 02:41:01,875 INFO: Network: HINet, with parameters: 88,668,806
+2025-07-05 02:41:01,876 INFO: HINet(
+  (down_path_1): ModuleList(
+    (0): UNetConvBlock(
+      (identity): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+      (conv_1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_1): LeakyReLU(negative_slope=0.2)
+      (conv_2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_2): LeakyReLU(negative_slope=0.2)
+      (downsample): Conv2d(64, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+    )
+    (1): UNetConvBlock(
+      (identity): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1))
+      (conv_1): Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_1): LeakyReLU(negative_slope=0.2)
+      (conv_2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_2): LeakyReLU(negative_slope=0.2)
+      (downsample): Conv2d(128, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+    )
+    (2): UNetConvBlock(
+      (identity): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1))
+      (conv_1): Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_1): LeakyReLU(negative_slope=0.2)
+      (conv_2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_2): LeakyReLU(negative_slope=0.2)
+      (downsample): Conv2d(256, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+    )
+    (3): UNetConvBlock(
+      (identity): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1))
+      (conv_1): Conv2d(256, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_1): LeakyReLU(negative_slope=0.2)
+      (conv_2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_2): LeakyReLU(negative_slope=0.2)
+      (norm): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+      (downsample): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+    )
+    (4): UNetConvBlock(
+      (identity): Conv2d(512, 1024, kernel_size=(1, 1), stride=(1, 1))
+      (conv_1): Conv2d(512, 1024, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_1): LeakyReLU(negative_slope=0.2)
+      (conv_2): Conv2d(1024, 1024, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_2): LeakyReLU(negative_slope=0.2)
+      (norm): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+    )
+  )
+  (down_path_2): ModuleList(
+    (0): UNetConvBlock(
+      (identity): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+      (conv_1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_1): LeakyReLU(negative_slope=0.2)
+      (conv_2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_2): LeakyReLU(negative_slope=0.2)
+      (csff_enc): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (csff_dec): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (downsample): Conv2d(64, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+    )
+    (1): UNetConvBlock(
+      (identity): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1))
+      (conv_1): Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_1): LeakyReLU(negative_slope=0.2)
+      (conv_2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_2): LeakyReLU(negative_slope=0.2)
+      (csff_enc): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (csff_dec): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (downsample): Conv2d(128, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+    )
+    (2): UNetConvBlock(
+      (identity): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1))
+      (conv_1): Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_1): LeakyReLU(negative_slope=0.2)
+      (conv_2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_2): LeakyReLU(negative_slope=0.2)
+      (csff_enc): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (csff_dec): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (downsample): Conv2d(256, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+    )
+    (3): UNetConvBlock(
+      (identity): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1))
+      (conv_1): Conv2d(256, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_1): LeakyReLU(negative_slope=0.2)
+      (conv_2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_2): LeakyReLU(negative_slope=0.2)
+      (csff_enc): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (csff_dec): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (norm): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+      (downsample): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+    )
+    (4): UNetConvBlock(
+      (identity): Conv2d(512, 1024, kernel_size=(1, 1), stride=(1, 1))
+      (conv_1): Conv2d(512, 1024, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_1): LeakyReLU(negative_slope=0.2)
+      (conv_2): Conv2d(1024, 1024, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (relu_2): LeakyReLU(negative_slope=0.2)
+      (norm): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+    )
+  )
+  (conv_01): Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv_02): Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (up_path_1): ModuleList(
+    (0): UNetUpBlock(
+      (up): ConvTranspose2d(1024, 512, kernel_size=(2, 2), stride=(2, 2))
+      (conv_block): UNetConvBlock(
+        (identity): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1))
+        (conv_1): Conv2d(1024, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (relu_1): LeakyReLU(negative_slope=0.2)
+        (conv_2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (relu_2): LeakyReLU(negative_slope=0.2)
+      )
+    )
+    (1): UNetUpBlock(
+      (up): ConvTranspose2d(512, 256, kernel_size=(2, 2), stride=(2, 2))
+      (conv_block): UNetConvBlock(
+        (identity): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1))
+        (conv_1): Conv2d(512, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (relu_1): LeakyReLU(negative_slope=0.2)
+        (conv_2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (relu_2): LeakyReLU(negative_slope=0.2)
+      )
+    )
+    (2): UNetUpBlock(
+      (up): ConvTranspose2d(256, 128, kernel_size=(2, 2), stride=(2, 2))
+      (conv_block): UNetConvBlock(
+        (identity): Conv2d(256, 128, kernel_size=(1, 1), stride=(1, 1))
+        (conv_1): Conv2d(256, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (relu_1): LeakyReLU(negative_slope=0.2)
+        (conv_2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (relu_2): LeakyReLU(negative_slope=0.2)
+      )
+    )
+    (3): UNetUpBlock(
+      (up): ConvTranspose2d(128, 64, kernel_size=(2, 2), stride=(2, 2))
+      (conv_block): UNetConvBlock(
+        (identity): Conv2d(128, 64, kernel_size=(1, 1), stride=(1, 1))
+        (conv_1): Conv2d(128, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (relu_1): LeakyReLU(negative_slope=0.2)
+        (conv_2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (relu_2): LeakyReLU(negative_slope=0.2)
+      )
+    )
+  )
+  (up_path_2): ModuleList(
+    (0): UNetUpBlock(
+      (up): ConvTranspose2d(1024, 512, kernel_size=(2, 2), stride=(2, 2))
+      (conv_block): UNetConvBlock(
+        (identity): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1))
+        (conv_1): Conv2d(1024, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (relu_1): LeakyReLU(negative_slope=0.2)
+        (conv_2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (relu_2): LeakyReLU(negative_slope=0.2)
+      )
+    )
+    (1): UNetUpBlock(
+      (up): ConvTranspose2d(512, 256, kernel_size=(2, 2), stride=(2, 2))
+      (conv_block): UNetConvBlock(
+        (identity): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1))
+        (conv_1): Conv2d(512, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (relu_1): LeakyReLU(negative_slope=0.2)
+        (conv_2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (relu_2): LeakyReLU(negative_slope=0.2)
+      )
+    )
+    (2): UNetUpBlock(
+      (up): ConvTranspose2d(256, 128, kernel_size=(2, 2), stride=(2, 2))
+      (conv_block): UNetConvBlock(
+        (identity): Conv2d(256, 128, kernel_size=(1, 1), stride=(1, 1))
+        (conv_1): Conv2d(256, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (relu_1): LeakyReLU(negative_slope=0.2)
+        (conv_2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (relu_2): LeakyReLU(negative_slope=0.2)
+      )
+    )
+    (3): UNetUpBlock(
+      (up): ConvTranspose2d(128, 64, kernel_size=(2, 2), stride=(2, 2))
+      (conv_block): UNetConvBlock(
+        (identity): Conv2d(128, 64, kernel_size=(1, 1), stride=(1, 1))
+        (conv_1): Conv2d(128, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (relu_1): LeakyReLU(negative_slope=0.2)
+        (conv_2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (relu_2): LeakyReLU(negative_slope=0.2)
+      )
+    )
+  )
+  (skip_conv_1): ModuleList(
+    (0): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (3): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  )
+  (skip_conv_2): ModuleList(
+    (0): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (3): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  )
+  (sam12): SAM(
+    (conv1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (conv2): Conv2d(64, 3, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (conv3): Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  )
+  (cat12): Conv2d(128, 64, kernel_size=(1, 1), stride=(1, 1))
+  (last): Conv2d(64, 3, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+)
