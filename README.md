@@ -97,7 +97,7 @@ Some of the following results are higher than the original paper as we optimized
 
 
 <div align="center">
-<img src="demo/GOPR0384_11_00-000001.png" height="400px" alt="blurred image"><img src="demo/demo1.png" height="400px" alt="SIDD Result"><img src="./figures/GoPro%20Result.jpg" height="400px" alt="GoPro Result" >
+<img src="demo/GOPR0384_11_00-000001.png" height="400px" alt="blurred image"><img src="demo/demo1.png" height="400px" alt="SIDD Result">
 </div>
 
 
