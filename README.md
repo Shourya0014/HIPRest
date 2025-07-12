@@ -15,7 +15,7 @@ Due to GitHub size limitations, the full project (including large model files an
 •	Target Performance: Achieve image quality with SSIM > 90% (Structural Similarity) compared to original high-quality frames. Maintain visual fidelity for text, faces, nature scenes, etc. 
 
 ### Network Architecture
-<img src="figures/pipeline.png" alt="arch" style="zoom:100%;" />
+<img src="demo/20250712_2328_Image Sharpening Pipeline_simple_compose_01jzzwhepxfx4bzmszd4188bvd.png" alt="arch" style="zoom:100%;" />
 
 
 ### Installation
